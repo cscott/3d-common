@@ -80,28 +80,59 @@ function bezier_dt_at(pts, t) =
 function unit_vector(p) = p / norm(p);
 function bezier_unit_tangent_at(pts, t) = unit_vector(bezier_dt_at(pts, t));
 
+function bezier_divide1(pts, z=0.5) = [
+  pts[0],
+  z*pts[1] - (z-1)*pts[0],
+  pow(z,2)*pts[2] - 2*z*(z-1)*pts[1] + pow(z-1,2)*pts[0],
+  pow(z,3)*pts[3] - 3*pow(z,2)*(z-1)*pts[2] + 3*z*pow(z-1,2)*pts[1] - pow(z-1,3)*pts[0]
+];
+function bezier_divide2(pts, z=0.5) = [
+  pow(z,3)*pts[3] - 3*pow(z,2)*(z-1)*pts[2] + 3*z*pow(z-1,2)*pts[1] - pow(z-1,3)*pts[0],
+  pow(z,2)*pts[3] - 2*z*(z-1)*pts[2] + pow(z-1,2)*pts[1],
+  z*pts[3] - (z-1)*pts[2],
+  pts[3]
+];
+
+function bezier_arclength(pts, thresh=1) =
+  norm(pts[3]-pts[0]) < thresh ? norm(pts[3] - pts[0]) :
+  (bezier_arclength(bezier_divide1(pts), thresh) +
+   bezier_arclength(bezier_divide2(pts), thresh));
+
+// return the t value corresponding to a given arclength
+function bezier_t_for_length(pts, length, thresh=1) =
+  norm(pts[3]-pts[0]) < thresh ? (length/norm(pts[3] - pts[0])) :
+  let(div1=bezier_divide1(pts), len1=bezier_arclength(div1, thresh))
+  len1 > length ?
+  (bezier_t_for_length(div1, length, thresh)/2) :
+  (0.5 + bezier_t_for_length(bezier_divide2(pts), length-len1, thresh)/2);
+
+
 // https://pomax.github.io/bezierinfo/#circles_cubic
-function bezier_arc_int(radius, angle, f) = [
+function bezier_arc(radius, angle) =
+  let(f=4*tan(angle/4)/3) [
   [ radius, 0, 0 ],
   [ radius, radius*f, 0],
   [ radius*(cos(angle) + f*sin(angle)),
     radius*(sin(angle) - f*cos(angle)), 0],
   [ radius*cos(angle), radius*sin(angle), 0]
 ];
-function bezier_arc(radius, angle) =
-  bezier_arc_int(radius, angle, 4*tan(angle/4)/3);
 
 // Compute rotation matrix from two vectors.
 // From: http://math.stackexchange.com/questions/180418/calculate-rotation-matrix-to-align-vector-a-to-vector-b-in-3d
 
-function rotate_from2vec_int3(vx, c, s) =
-  [[1, 0, 0], [0, 1, 0], [0, 0, 1]] + vx + vx*vx*(1-c)/(s != 0 ? s*s : 1);
-function rotate_from2vec_int2(v) =
+function rotate_from2vec_int(v) =
   [[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]];
-function rotate_from2vec_int1(cross, v1, v2) =
-  rotate_from2vec_int3(rotate_from2vec_int2(cross), v1*v2, norm(cross));
 function rotate_from2vec(v1, v2) =
-  rotate_from2vec_int1(cross(v1, v2), v1, v2);
+  let(cross=cross(v1, v2), vx=rotate_from2vec_int(cross),
+      c=v1*v2, s=norm(cross))
+  ([[1, 0, 0], [0, 1, 0], [0, 0, 1]] + vx + vx*vx*(1-c)/(s != 0 ? s*s : 1));
+
+function mat3tomat4(M) = [
+  concat(M[0], [0]),
+  concat(M[1], [0]),
+  concat(M[2], [0]),
+  [ 0, 0, 0, 1 ]
+];
 
 module bezier_extrude(profile_points, bezier_points, endface=[], slices=$fn) {
   // ensure #slices is odd
