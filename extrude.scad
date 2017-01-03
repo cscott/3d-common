@@ -134,11 +134,12 @@ function mat3tomat4(M) = [
   [ 0, 0, 0, 1 ]
 ];
 
-module bezier_extrude(profile_points, bezier_points, endface=[], slices=$fn) {
+module bezier_extrude(profile_points, bezier_points, endface=[], slices=$fn, initial_vec=undef) {
   // ensure #slices is odd
   nslices = 1 + 2*floor((slices <= 0 ? 13 : slices) / 2);
   // initial direction and position
-  d0 = bezier_unit_tangent_at(bezier_points, 0);
+  d0 = initial_vec == undef ? bezier_unit_tangent_at(bezier_points, 0) :
+    initial_vec;
   points = [ for (i=[0:1:nslices-1]) for (j=[0:1:len(profile_points)-1])
     bezier_at(bezier_points, i/(nslices-1)) +
     rotate_from2vec(d0, bezier_unit_tangent_at(bezier_points, i/(nslices-1))) *
