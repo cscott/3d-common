@@ -66,6 +66,7 @@ function trans_mat(amt) = [
 ];
 function affineT(mat, v) = mat * [v.x, v.y, v.z, 1];
 function affine(mat, v) = let (r=affineT(mat, v)) [for (i=[0,1,2]) r[i]];
+function affine2(mat, v) = let (r=mat * [v.x, v.y, 0, 1]) [r.x, r.y];
 
 // Bezier math, from: https://pomax.github.io/bezierinfo/
 function bezier_at(pts, t) =
