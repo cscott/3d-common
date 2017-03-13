@@ -9,6 +9,12 @@ function indexof(haystack, needle, startpos=0) =
   substr(haystack, startpos, len(needle)) == needle ? startpos :
   indexof(haystack, needle, startpos + 1);
 
+function startswith(s, prefix) =
+  (substr(s, 0, len(prefix)) == prefix);
+
+function endswith(s, suffix) =
+  (substr(s, len(s) - len(suffix), len(s)) == suffix);
+
 // returns pos < startpos which is the starting location of needle
 function rindexof(haystack, needle, startpos=-1) =
   startpos < 0 ? rindexof(haystack, needle, len(haystack)) :
