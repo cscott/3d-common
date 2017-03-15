@@ -15,6 +15,11 @@ function startswith(s, prefix) =
 function endswith(s, suffix) =
   (substr(s, len(s) - len(suffix), len(s)) == suffix);
 
+function split(s, needle) =
+  let (i=indexof(s, needle), j=i+len(needle))
+    (i < 0) ? [ s ] :
+    concat([ substr(s, 0, i) ], split( substr(s, j, len(s)-j), needle ));
+
 // returns pos < startpos which is the starting location of needle
 function rindexof(haystack, needle, startpos=-1) =
   startpos < 0 ? rindexof(haystack, needle, len(haystack)) :
