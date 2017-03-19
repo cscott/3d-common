@@ -77,6 +77,28 @@ echo(strutil_assert(indexof("abcd", "c"), 2, "indexof 1"));
 echo(strutil_assert(indexof("abcd", "a", 1), -1, "indexof 2"));
 echo(strutil_assert(indexof("abcd", "c", -5), 2, "indexof 3"));
 
+echo(strutil_assert(startswith("abc", "a"), true, "startswith 1"));
+echo(strutil_assert(startswith("abc", "ab"), true, "startswith 2"));
+echo(strutil_assert(startswith("abc", "abc"), true, "startswith 3"));
+echo(strutil_assert(startswith("abc", "abcd"), false, "startswith 4"));
+echo(strutil_assert(startswith("abc", "bc"), false, "startswith 5"));
+
+echo(strutil_assert(endswith("abc", "c"), true, "endswith 1"));
+echo(strutil_assert(endswith("abc", "bc"), true, "endswith 2"));
+echo(strutil_assert(endswith("abc", "abc"), true, "endswith 3"));
+echo(strutil_assert(endswith("abc", "abcd"), false, "endswith 4"));
+echo(strutil_assert(endswith("abc", "ab"), false, "endswith 5"));
+
+echo(strutil_assert(len(split("a-b", "x")), 1, "split 1"));
+echo(strutil_assert(split("a-b", "x")[0], "a-b", "split 2"));
+echo(strutil_assert(len(split("a-b", "-")), 2, "split 3"));
+echo(strutil_assert(split("a-b", "-")[0], "a", "split 4"));
+echo(strutil_assert(split("a-b", "-")[1], "b", "split 5"));
+echo(strutil_assert(len(split("a->b->c", "->")), 3, "split 6"));
+echo(strutil_assert(split("a->b->c", "->")[0], "a", "split 7"));
+echo(strutil_assert(split("a->b->c", "->")[1], "b", "split 8"));
+echo(strutil_assert(split("a->b->c", "->")[2], "c", "split 9"));
+
 echo(strutil_assert(rindexof("cbcd", "c"), 2, "rindexof 1"));
 echo(strutil_assert(rindexof("cbcb", "cb", 2), 0, "rindexof 2"));
 
