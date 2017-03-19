@@ -1,5 +1,7 @@
 // String utility functions.
 
+use <./strord.scad>
+
 function substr(s, off, len) = (len <= 0 || off >= len(s)) ? "" :
   off < 0 ? substr(s, 0, len+off) : str(s[off], substr(s, off+1, len-1));
 
@@ -63,6 +65,14 @@ function signnumat(str, pos=0, intonly=false) =
     substr(str, pos, 1) == "-" ? -numat(str, pos+1, intonly) :
     substr(str, pos, 1) == "+" ?  numat(str, pos+1, intonly) :
     numat(str, pos, intonly);
+
+// Naive 'ord' to convert string to codepoints
+
+// Naive case conversion
+function toupper(s) =
+  chr([for (i=ord(s)) (i>=97 && i<=122) ? (i-32) : i]);
+function tolower(s) =
+  chr([for (i=ord(s)) (i>=65 && i<=90) ? (i+32) : i]);
 
 // self-test
 function strutil_assert(actual, expected, msg) =
@@ -134,3 +144,6 @@ echo(strutil_assert(numat("ab34.56x78", 2, true), 34, "numat 3"));
 echo(strutil_assert(signnumat("x+34.5-67.89y", 1), 34.5, "signnumat 1"));
 echo(strutil_assert(signnumat("x+34.5-67.89y", 6), -67.89, "signnumat 2"));
 echo(strutil_assert(signnumat("x+34.5-67.89y", 6, true), -67, "signnumat 3"));
+
+echo(strutil_assert(toupper("abCDefz09"), "ABCDEFZ09", "toupper 1"));
+echo(strutil_assert(tolower("ABCDEFZ09"), "abcdefz09", "tolower 1"));
