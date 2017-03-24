@@ -2,12 +2,17 @@
 
 use <./strord.scad>
 
-function substr(s, off, len) = (len <= 0 || off >= len(s)) ? "" :
-  off < 0 ? substr(s, 0, len+off) : str(s[off], substr(s, off+1, len-1));
+function substr(s, off, len=undef) =
+  let (ls = len(s),
+       o = (off < 0) ? max(0, ls+off) : off,
+       l = (len==undef) ? (ls-o) : (len < 0) ? (ls-o+len) : len)
+  (l <= 0 || o >= ls ? "" : str(s[o], substr(s, o+1, l-1)));
 
 // returns pos >= startpos which is starting location of needle
-function indexof(haystack, needle, startpos=0) =
-  (startpos > len(haystack) - len(needle)) ? -1 :
+function indexof(haystack, needle, startpos=undef) =
+  startpos == undef ? indexof(haystack, needle, 0) :
+  startpos < 0 ? indexof(haystack, needle, max(0, len(haystack)+startpos)) :
+  startpos > (len(haystack) - len(needle)) ? -1 :
   substr(haystack, startpos, len(needle)) == needle ? startpos :
   indexof(haystack, needle, startpos + 1);
 
@@ -15,7 +20,7 @@ function startswith(s, prefix) =
   (substr(s, 0, len(prefix)) == prefix);
 
 function endswith(s, suffix) =
-  (substr(s, len(s) - len(suffix), len(s)) == suffix);
+  (substr(s, -len(suffix)) == suffix);
 
 function split(s, needle) =
   let (i=indexof(s, needle), j=i+len(needle))
@@ -23,8 +28,9 @@ function split(s, needle) =
     concat([ substr(s, 0, i) ], split( substr(s, j, len(s)-j), needle ));
 
 // returns pos < startpos which is the starting location of needle
-function rindexof(haystack, needle, startpos=-1) =
-  startpos < 0 ? rindexof(haystack, needle, len(haystack)) :
+function rindexof(haystack, needle, startpos=undef) =
+  startpos == undef ? rindexof(haystack, needle, len(haystack)) :
+  startpos < 0 ? rindexof(haystack, needle, max(0, len(haystack)+startpos)) :
   startpos == 0 ? -1 :
   substr(haystack, startpos-1, len(needle)) == needle ? startpos-1 :
   rindexof(haystack, needle, startpos-1);
@@ -80,8 +86,10 @@ function strutil_assert(actual, expected, msg) =
   str("FAILED: ", msg, " (EXPECTED:", expected, " ACTUAL:", actual, ")");
 
 echo(strutil_assert(substr("abcd", 1, 2), "bc", "substr 1"));
-echo(strutil_assert(substr("abcd", -1, 2), "a", "substr 2"));
+echo(strutil_assert(substr("abcd", -1, 2), "d", "substr 2"));
 echo(strutil_assert(substr("abcd", 3, 10), "d", "substr 3"));
+echo(strutil_assert(substr("abcd", 1, -1), "bc", "substr 4"));
+echo(strutil_assert(substr("abcd", 2), "cd", "substr 5"));
 
 echo(strutil_assert(indexof("abcd", "c"), 2, "indexof 1"));
 echo(strutil_assert(indexof("abcd", "a", 1), -1, "indexof 2"));
