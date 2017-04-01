@@ -64,6 +64,12 @@ function trans_mat(amt) = [
   [ 0, 0, 1, amt.z ],
   [ 0, 0, 0, 1 ]
 ];
+function scale_mat(amt) = [
+  [ amt.x, 0, 0, 0 ],
+  [ 0, amt.y, 0, 0 ],
+  [ 0, 0, amt.z, 0 ],
+  [ 0, 0, 0,     1 ]
+];
 function affineT(mat, v) = mat * [v.x, v.y, v.z, 1];
 function affine(mat, v) = let (r=affineT(mat, v)) [for (i=[0,1,2]) r[i]];
 function affine2(mat, v) = let (r=mat * [v.x, v.y, 0, 1]) [r.x, r.y];
