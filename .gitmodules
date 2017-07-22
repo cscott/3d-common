@@ -1,0 +1,3 @@
+[submodule "dotscad"]
+	path = dotscad
+	url = git@github.com:cscott/python-dotscad.git
