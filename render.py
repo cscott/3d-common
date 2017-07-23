@@ -4,11 +4,12 @@ import os, sys
 sys.path.append(os.path.abspath('./dotscad/'))
 from dotscad import Customizer
 import argparse
+import itertools
 
 def norm(s):
     return s.replace('/', '-').replace('_','-')
 
-def render_parts(basename, relativeTo=__file__):
+def render_parts(basename, keys=['part'], relativeTo=None):
     parser = argparse.ArgumentParser(
         description='Render STL from '+('' if basename is None else basename)+'.scad'
     )
@@ -22,15 +23,30 @@ def render_parts(basename, relativeTo=__file__):
         basename = args.basename
     if basename.endswith('.scad'):
         basename = basename.rpartition('.')[0]
+    if True or relativeTo is None:
+        try:
+            import inspect
+            frm = inspect.currentframe(1)
+            relativeTo = inspect.getabsfile(frm)
+        except:
+            pass
+    if relativeTo is None:
+        relativeTo = __file__
 
     os.chdir(os.path.dirname(os.path.abspath(relativeTo)))
     if not (args.update and os.path.isdir(basename + '-stl')):
       os.makedirs(basename + '-stl')
     s = Customizer(basename + '.scad', debug=False)
-    for part in s.vars['part'].possible.parameters.keys():
-        shortname = str(s.vars['part'].possible[part])
-        s.vars['part'].set(shortname)
-        name = '{0}-stl/{0}-{1}'.format(basename, norm(shortname))
+    for p in itertools.product(*[s.vars[y].possible.parameters.keys() for y in keys]):
+        p2 = [{
+            'key':x[0],
+            'part':x[1],
+            'shortname':s.vars[x[0]].possible[x[1]]
+        } for x in zip(keys, p)]
+        name = '{0}-stl/{0}'.format(basename)
+        for d in p2:
+            s.vars[d['key']].set(d['shortname'])
+            name += '-{0}'.format(norm(d['shortname']))
         print name
         if (args.update and os.path.isfile(name + '.stl')):
           print "  (skipping, as it already exists)"
