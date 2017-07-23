@@ -7,7 +7,7 @@ import argparse
 import itertools
 
 def norm(s):
-    return s.replace('/', '-').replace('_','-')
+    return str(s).replace('/', '-').replace('_','-')
 
 def render_parts(basename, keys=['part'], relativeTo=None):
     parser = argparse.ArgumentParser(
