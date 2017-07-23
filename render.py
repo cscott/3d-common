@@ -23,7 +23,7 @@ def render_parts(basename, keys=['part'], relativeTo=None):
         basename = args.basename
     if basename.endswith('.scad'):
         basename = basename.rpartition('.')[0]
-    if True or relativeTo is None:
+    if relativeTo is None:
         try:
             import inspect
             frm = inspect.currentframe(1)
@@ -35,6 +35,9 @@ def render_parts(basename, keys=['part'], relativeTo=None):
 
     os.chdir(os.path.dirname(os.path.abspath(relativeTo)))
     if not (args.update and os.path.isdir(basename + '-stl')):
+      if os.path.isdir(basename + '-stl'):
+        print >> sys.stderr, "FAILED: Directory " + basename + "-stl already exists. (Use -u to update.)"
+        sys.exit(1)
       os.makedirs(basename + '-stl')
     s = Customizer(basename + '.scad', debug=False)
     for p in itertools.product(*[s.vars[y].possible.parameters.keys() for y in keys]):
