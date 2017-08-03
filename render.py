@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import os, sys
-sys.path.append(os.path.join(os.path.dirname(__file__), 'dotscad'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'dotscad'))
 from dotscad import Customizer
 import argparse
 import itertools
