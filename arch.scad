@@ -9,7 +9,7 @@ module arch(x,y,r) {
         translate([-x,y,0]) circle(r);
       }
       translate([0,y-r,0])
-        square(size=[3*(r-x), r - epsilon], center=true);
+        square(size=[3*(r-x), 2*r - epsilon], center=true);
     }
     if (y > 0)
       translate([0,y/2,0]) square(size=[2 *(r-x), y],center=true);
